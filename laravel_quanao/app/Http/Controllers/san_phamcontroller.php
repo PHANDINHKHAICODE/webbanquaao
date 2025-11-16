@@ -25,6 +25,18 @@ class san_phamcontroller extends Controller
         return view('admins.sanpham.index',compact('sanpham'));
     }
 
+    public function showProductsByCategory($ma_danh_muc)
+{
+    $danhMuc = danh_muc_san_pham::find($ma_danh_muc);
+    if (!$danhMuc) {
+        return redirect()->back()->with('error', 'Danh mục không tồn tại');
+    }
+
+    $sanpham = san_pham::where('ma_danh_muc', $ma_danh_muc)->get();
+
+    return view('client.product', compact('sanpham', 'danhMuc'));
+}
+
 
 
     public function indexuser()

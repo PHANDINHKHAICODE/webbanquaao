@@ -7,30 +7,60 @@
         </div>
 
         <div class="flex-w flex-sb-m p-b-52">
+            @php
+                // Hàm loại bỏ dấu tiếng Việt để dò từ khóa ổn định
+                if (!function_exists('vn_str_filter')) {
+                    function vn_str_filter($str) {
+                        $str = preg_replace('/\s+/', ' ', trim($str));
+                        $unicode = array(
+                            'a'=>array('á','à','ả','ã','ạ','ă','ắ','ằ','ẳ','ẵ','ặ','â','ấ','ầ','ẩ','ẫ','ậ'),
+                            'd'=>array('đ'),
+                            'e'=>array('é','è','ẻ','ẽ','ẹ','ê','ế','ề','ể','ễ','ệ'),
+                            'i'=>array('í','ì','ỉ','ĩ','ị'),
+                            'o'=>array('ó','ò','ỏ','õ','ọ','ô','ố','ồ','ổ','ỗ','ộ','ơ','ớ','ờ','ở','ỡ','ợ'),
+                            'u'=>array('ú','ù','ủ','ũ','ụ','ư','ứ','ừ','ử','ữ','ự'),
+                            'y'=>array('ý','ỳ','ỷ','ỹ','ỵ'),
+                        );
+                        $str = mb_strtolower($str, 'UTF-8');
+                        foreach ($unicode as $ascii => $accents) {
+                            $str = str_replace($accents, $ascii, $str);
+                        }
+                        return $str;
+                    }
+                }
+
+                // Tạo selector cho các nút Nam / Nữ dựa trên danh mục có trong $showdanhmuc
+                $maleCats = [];
+                $femaleCats = [];
+                if (isset($showdanhmuc) && is_iterable($showdanhmuc)) {
+                    foreach ($showdanhmuc as $dm) {
+                        $name = is_object($dm) ? ($dm->ten_danh_muc ?? '') : (is_array($dm) ? ($dm['ten_danh_muc'] ?? '') : '');
+                        $slug = vn_str_filter($name);
+                        $class = 'cat-' . (is_object($dm) ? ($dm->ma_danh_muc ?? '') : (is_array($dm) ? ($dm['ma_danh_muc'] ?? '') : ''));
+                        if ($slug !== '' && strpos($slug, 'nam') !== false) $maleCats[] = $class;
+                        if ($slug !== '' && (strpos($slug, 'nu') !== false || strpos($slug, 'nu') !== false)) $femaleCats[] = $class;
+                    }
+                }
+                $maleSelector = count($maleCats) ? ('.' . implode(',.', $maleCats)) : '.men';
+                $femaleSelector = count($femaleCats) ? ('.' . implode(',.', $femaleCats)) : '.women';
+            @endphp
+
             <div class="flex-w flex-l-m filter-tope-group m-tb-10">
-                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
+                <a href="{{ route('sanphamuser') }}" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
                     Tất cả sản phẩm
-                </button>
+                </a>
 
-                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
-                    Nữ
-                </button>
-
-                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">
-                    Nam
-                </button>
-
-                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".bag">
-                    Túi
-                </button>
-
-                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".shoes">
-                    Váy
-                </button>
-
-                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".watches">
-                    Xem
-                </button>
+                @if(isset($showdanhmuc) && is_iterable($showdanhmuc))
+                    @foreach($showdanhmuc as $dm)
+                        @php
+                            $dmId = is_object($dm) ? ($dm->ma_danh_muc ?? '') : ($dm['ma_danh_muc'] ?? '');
+                            $dmName = is_object($dm) ? ($dm->ten_danh_muc ?? '') : ($dm['ten_danh_muc'] ?? '');
+                        @endphp
+                        <a href="{{ route('san_pham.by_category', $dmId) }}" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".cat-{{ $dmId }}">
+                            {{ $dmName }}
+                        </a>
+                    @endforeach
+                @endif
             </div>
 
             <div class="flex-w flex-c-m m-tb-10">
@@ -252,12 +282,48 @@
 
             @foreach($sanpham as $item)
 
-            <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+            @php
+                // Lấy mã danh mục từ sản phẩm (cả DB::table và Eloquent đều có trường này)
+                $maDanhMuc = $item->ma_danh_muc ?? null;
+                $tenDanhMuc = '';
+                if (isset($showdanhmuc) && is_iterable($showdanhmuc) && $maDanhMuc !== null) {
+                    foreach ($showdanhmuc as $dm) {
+                        if (isset($dm->ma_danh_muc) && $dm->ma_danh_muc == $maDanhMuc) {
+                            $tenDanhMuc = $dm->ten_danh_muc ?? '';
+                            break;
+                        }
+                    }
+                }
+
+                // Chuẩn hóa tên để dò từ khóa nam / nữ (dùng mb_strtolower nếu có)
+                $lower = function_exists('mb_strtolower') ? mb_strtolower($tenDanhMuc, 'UTF-8') : strtolower($tenDanhMuc);
+                $genderClass = '';
+                if ($lower !== '' && strpos($lower, 'nam') !== false) {
+                    $genderClass = 'men';
+                } elseif ($lower !== '' && (strpos($lower, 'nu') !== false || strpos($lower, 'nữ') !== false)) {
+                    $genderClass = 'women';
+                }
+
+                // Gán class theo mã danh mục để lọc an toàn (không phụ thuộc vào quan hệ Eloquent)
+                $catClass = $maDanhMuc !== null ? 'cat-' . $maDanhMuc : 'cat-all';
+            @endphp
+
+            <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item {{ $catClass }} {{ $genderClass }}">
                 <!-- Block2 -->
                 <div class="block2">
                     <div class="block2-pic hov-img0">
 
-                        <img src="{{$item -> anh_sanpham}}" alt="IMG-PRODUCT">
+                        @php
+                            $raw = $item->anh_sanpham ?? '';
+                            if (preg_match('/^https?:\/\//', $raw)) {
+                                $imgUrl = $raw;
+                            } elseif (Str::startsWith($raw, '/')) {
+                                $imgUrl = $raw;
+                            } else {
+                                $imgUrl = asset($raw);
+                            }
+                        @endphp
+                        <img src="{{ $imgUrl }}" alt="IMG-PRODUCT">
 
                         <a href="{{route ('san_pham.showdetail' , $item -> ma_san_pham)}}" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
                             Chi Tiết

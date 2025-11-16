@@ -119,7 +119,8 @@
                     <a href="/trangchu">Danh mục</a>
                     <ul class="sub-menu">
                         @foreach ($showdanhmuc as $item)
-                        <li><a href="">{{$item -> ten_danh_muc}}</a></li>
+                        <li><a href="{{ route('san_pham.by_category', $item->ma_danh_muc) }}">{{$item -> ten_danh_muc}}</a></li>
+
                         @endforeach
 
 
