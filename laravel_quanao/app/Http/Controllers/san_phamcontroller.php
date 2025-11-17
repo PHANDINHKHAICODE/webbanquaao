@@ -14,9 +14,45 @@ use App\Models\ProductReview;
 use App\Models\Review;
 class san_phamcontroller extends Controller
 {
+
     // --------------------------
     // ADMIN - CRUD sản phẩm
     // --------------------------
+
+    protected $imageName ;
+
+
+
+    public function index()
+    {
+        $sanpham = DB::table('san_pham')->get();
+        return view('admins.sanpham.index',compact('sanpham'));
+    }
+
+    public function showProductsByCategory($ma_danh_muc)
+{
+    $danhMuc = danh_muc_san_pham::find($ma_danh_muc);
+    if (!$danhMuc) {
+        return redirect()->back()->with('error', 'Danh mục không tồn tại');
+    }
+
+    $sanpham = san_pham::where('ma_danh_muc', $ma_danh_muc)->get();
+
+    return view('client.product', compact('sanpham', 'danhMuc'));
+}
+
+
+
+    public function indexuser()
+    {
+        $sanpham = DB::table('san_pham')->get();
+        $slider = DB::table('slider')->get();
+        $data=["sanpham"=>$sanpham,"slider"=>$slider,];
+        return view('client.layouts.index', $data);
+    }
+
+
+
     
     public function index()
     {

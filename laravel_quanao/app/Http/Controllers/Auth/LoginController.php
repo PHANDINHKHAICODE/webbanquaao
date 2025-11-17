@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 
 class LoginController extends Controller
 {
@@ -46,22 +48,29 @@ class LoginController extends Controller
     }
 
     public function login(Request $request){
-        $input = $request -> all();
         $this->validate($request,[
             'email' => 'required|email',
             'password' => 'required'
         ]);
-        if(auth()->attempt(array('email'=>$input['email'],'password'=>$input['password']))){
-            if(auth()->user()->is_admin==1){
-                return redirect()->route('adminhome');
 
+        $credentials = $request->only('email','password');
+        $remember = $request->filled('remember');
+
+        Log::info('Login attempt', ['email' => $credentials['email'], 'ip' => $request->ip()]);
+
+        $attempt = FacadesAuth::attempt($credentials, $remember);
+
+        Log::info('Login result', ['email' => $credentials['email'], 'result' => $attempt, 'session_id' => session()->getId()]);
+
+        if($attempt){
+            if(FacadesAuth::user()->is_admin==1){
+                return redirect()->route('adminhome');
             }else{
                 return redirect()->route('home');
             }
         }
-        else{
-            return redirect()->route('login')->with('lỗi');
-        }
+
+        return redirect()->route('login')->withErrors(['email' => 'Thông tin đăng nhập không đúng hoặc mật khẩu sai.']);
     }
 
     public function logout()

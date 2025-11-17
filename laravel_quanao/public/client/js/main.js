@@ -131,13 +131,27 @@
     var $topeContainer = $('.isotope-grid');
     var $filter = $('.filter-tope-group');
 
-    // filter items on button click
+    // filter items on button or link click; also update URL via history.pushState
     $filter.each(function () {
-        $filter.on('click', 'button', function () {
+        $filter.on('click', 'button, a', function (e) {
+            e.preventDefault();
             var filterValue = $(this).attr('data-filter');
             $topeContainer.isotope({filter: filterValue});
+            // update active class
+            var isotopeButton = $('.filter-tope-group button, .filter-tope-group a');
+            isotopeButton.removeClass('how-active1');
+            $(this).addClass('how-active1');
+            // update browser URL to the href if present (no reload)
+            var href = $(this).attr('href');
+            if (href) {
+                try {
+                    history.pushState(null, '', href);
+                } catch (err) {
+                    // ignore pushState errors
+                }
+            }
         });
-        
+
     });
 
     // init Isotope
