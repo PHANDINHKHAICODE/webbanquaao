@@ -493,14 +493,16 @@
 		});
 	</script>
 
-	<script>
-		const btnThanhtoan = document.getElementById('thanhtoan')
-		const formThongtin = document.forms['thongtin']
-		btnThanhtoan.onclick = () =>{
-			formThongtin.submit();
-			alert('Xác nhận đặt hàng ?');
-		}
-	</script>
+<script>
+const btnThanhtoan = document.getElementById('thanhtoan');
+const formThongtin = document.forms['thongtin'];
+
+btnThanhtoan.onclick = () => {
+    if(confirm('Xác nhận đặt hàng ?')) {
+        formThongtin.submit();
+    }
+}
+</script>
 
 
 

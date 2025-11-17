@@ -14,6 +14,8 @@ use App\Http\Controllers\chi_tiet_don_hangcontroller;
 use App\Http\Controllers\Thongkecontroller;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HelpController;
+
 FacadesAuth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -180,3 +182,21 @@ Route::group(['middleware' => 'auth'], function () {
     
 });
 
+// web.php
+Route::get('/tro-giup', function () {
+    return view('help');
+})->name('help');
+
+Route::get('/wishlist/add/{id}', [WishlistController::class, 'add'])
+    ->middleware('auth')
+    ->name('wishlist.add');
+    
+Route::get('/search', [san_phamcontroller::class, 'search'])->name('search.result');
+
+
+Route::post('/product/{ma_san_pham}/review', [san_phamcontroller::class, 'storeReview'])
+    ->name('product.review.store')
+    ->middleware('auth');
+
+Route::get('/product/{ma_san_pham}', [san_phamcontroller::class, 'showProductDetailWithReviews'])
+    ->name('product.detail');
