@@ -120,13 +120,16 @@
 						<h4 class="mtext-105 cl2 js-name-detail p-b-14">
 						{{$sanpham ->ten_san_pham}}
 						</h4>
+						@php
+							$giaSale = $sanpham->gia * 0.9;
+						@endphp
 
-						<span class="mtext-106 cl2">
-						{{number_format($sanpham -> gia)}} VNĐ
+						<span style="text-decoration: line-through; color:#888;">
+							{{ number_format($sanpham->gia) }} VNĐ
 						</span>
-						<br> <br>
-						<span  class="stext-102 cl3 p-t-23">
-						Còn : {{number_format($sanpham -> soluong)}} chiếc
+
+						<span style="color:#888; font-weight:bold;">
+							{{ number_format($giaSale) }} VNĐ
 						</span>
 
 						<p class="stext-102 cl3 p-t-23">
@@ -192,6 +195,9 @@
 									</div>
 									<button type="submit" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" > Thêm vào giỏ hàng</button>
 									
+								</div>
+								<div id="cart-notification" class="cart-notification">
+									<p>Sản phẩm đã được thêm vào giỏ hàng!</p>
 								</div>
 							</div>
 						</div>
@@ -311,153 +317,80 @@
 						</div>
 
 						<!-- - -->
-						<div class="tab-pane fade" id="reviews" role="tabpanel">
-							<div class="row">
-								<div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
-									<div class="p-b-30 m-lr-15-sm">
-										<!-- Review -->
-										<div class="flex-w flex-t p-b-68">
-											<div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
-												<img src="/client/images/gallery-06.jpg" alt="AVATAR">
-											</div>
+						<<div class="tab-pane fade" id="reviews" role="tabpanel">
+    <div class="row">
+        <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
+            <div class="p-b-30 m-lr-15-sm">
 
-											<div class="size-207">
-												<div class="flex-w flex-sb-m p-b-17">
-													<span class="mtext-107 cl2 p-r-20">
-														Đặng duy anh
-													</span>
+                <h3>Đánh giá sản phẩm</h3>
 
-													<span class="fs-18 cl11">
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star-half"></i>
-													</span>
-												</div>
+                @if(isset($reviews) && $reviews->count() > 0)
+                    @foreach($reviews as $review)
+                        <div class="flex-w flex-t p-b-68">
+                            <div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
+                                <img src="/client/images/default-avatar.jpg" alt="AVATAR">
+                            </div>
 
-												<p class="stext-102 cl6">
-													Quần áo của shop là số 1 Việt Nam luôn ạ !!! Cho shop 5 sao
-												</p>
-											</div>
-										</div>
-										<div class="flex-w flex-t p-b-68">
-											<div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
-												<img src="/client/images/product-10.jpg" alt="AVATAR">
-											</div>
+                            <div class="size-207">
+                                <div class="flex-w flex-sb-m p-b-17">
+                                    <span class="mtext-107 cl2 p-r-20">
+                                        {{ $review->user->name ?? 'Người dùng' }}
+                                    </span>
 
-											<div class="size-207">
-												<div class="flex-w flex-sb-m p-b-17">
-													<span class="mtext-107 cl2 p-r-20">
-														Phùng Huy Khải
-													</span>
+                                    <span class="fs-18 cl11">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= $review->rating)
+                                                <i class="zmdi zmdi-star"></i>
+                                            @else
+                                                <i class="zmdi zmdi-star-outline"></i>
+                                            @endif
+                                        @endfor
+                                    </span>
+                                </div>
 
-													<span class="fs-18 cl11">
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star-half"></i>
-													</span>
-												</div>
+                                <p class="stext-102 cl6">
+                                    {{ $review->comment }}
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <p>Chưa có đánh giá nào.</p>
+                @endif
 
-												<p class="stext-102 cl6">
-													Mua hàng của shop ưng cái bụng quá , mua liền một bộ nữa !
-												</p>
-											</div>
-										</div>
-										<div class="flex-w flex-t p-b-68">
-											<div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
-												<img src="/client/images/product-min-03.jpg" alt="AVATAR">
-											</div>
+                <hr>
 
-											<div class="size-207">
-												<div class="flex-w flex-sb-m p-b-17">
-													<span class="mtext-107 cl2 p-r-20">
-														Vũ Phúc
-													</span>
+                <h4>Thêm đánh giá của bạn</h4>
 
-													<span class="fs-18 cl11">
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star"></i>
-														<i class="zmdi zmdi-star-half"></i>
-													</span>
-												</div>
+                @auth
+                    <form action="{{ route('product.review.store', $sanpham->ma_san_pham) }}" method="POST">
+                        @csrf
 
-												<p class="stext-102 cl6">
-													Chất liệu sản phẩm cứ gọi là số một Việt Nam
-												</p>
-											</div>
-										</div>
+                        <label>Đánh giá (1-5):</label>
+                        <select name="rating" required>
+                            <option value="">Chọn</option>
+                            @for($i = 1; $i <= 5; $i++)
+                                <option value="{{ $i }}">{{ $i }} sao</option>
+                            @endfor
+                        </select>
 
-										<!-- Add review -->
-										<form class="w-full">
-											<h5 class="mtext-108 cl2 p-b-7">
-												Thêm đánh giá
-											</h5>
+                        <br><br>
 
-											<p class="stext-102 cl6">
-												Địa chỉ email của bạn sẽ không được công bố. Các trường bắt buộc được đánh dấu
-											</p>
+                        <label>Bình luận:</label>
+                        <textarea name="comment" required></textarea>
 
-											<div class="flex-w flex-m p-t-50 p-b-23">
-												<span class="stext-102 cl3 m-r-16">
-													Đánh giá
-												</span>
+                        <br><br>
 
-												<span class="wrap-rating fs-18 cl11 pointer">
-													<i class="item-rating pointer zmdi zmdi-star-outline"></i>
-													<i class="item-rating pointer zmdi zmdi-star-outline"></i>
-													<i class="item-rating pointer zmdi zmdi-star-outline"></i>
-													<i class="item-rating pointer zmdi zmdi-star-outline"></i>
-													<i class="item-rating pointer zmdi zmdi-star-outline"></i>
-													<input class="dis-none" type="number" name="rating">
-												</span>
-											</div>
+                        <button type="submit">Gửi đánh giá</button>
+                    </form>
+                @else
+                    <p>Bạn cần <a href="{{ route('login') }}">đăng nhập</a> để đánh giá sản phẩm.</p>
+                @endauth
 
-											<div class="row p-b-25">
-												<div class="col-12 p-b-5">
-													<label class="stext-102 cl3" for="review">Đánh giá của bạn</label>
-													<textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10" id="review" name="review"></textarea>
-												</div>
-
-												<div class="col-sm-6 p-b-5">
-													<label class="stext-102 cl3" for="name">Tên</label>
-													<input class="size-111 bor8 stext-102 cl2 p-lr-20" id="name" type="text" name="name">
-												</div>
-
-												<div class="col-sm-6 p-b-5">
-													<label class="stext-102 cl3" for="email">Email</label>
-													<input class="size-111 bor8 stext-102 cl2 p-lr-20" id="email" type="text" name="email">
-												</div>
-											</div>
-
-											<button class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 m-b-10">
-												Đánh giá
-											</button>
-										</form>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">
-			<span class="stext-107 cl6 p-lr-25">
-				Mã hàng: JAK-01
-			</span>
-
-			<span class="stext-107 cl6 p-lr-25">
-				Danh mục: Áo khoác, Nam
-			</span>
-		</div>
-	</section>
-	
+            </div>
+        </div>
+    </div>
+</div>
 
 	<!-- Related Products -->
 	<section class="sec-relate-product bg0 p-t-45 p-b-105">
@@ -789,7 +722,84 @@
 	</script>
 	<!--===============================================================================================-->
 	<script src="{{asset('client/js/main.js')}}"></script>
+	<script>
+		function showCartNotification() {
+    const notification = document.getElementById('cart-notification');
+    notification.classList.add('show');
+
+    // Ẩn sau 2 giây
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 2000);
+}
+
+// Ví dụ khi click "Thêm vào giỏ hàng"
+$(".add-to-cart-btn").click(function(e) {
+    e.preventDefault();
+    
+    // Gọi AJAX thêm vào giỏ hàng của bạn ở đây
+    $.ajax({
+        url: "/route-them-gio-hang", // sửa theo route của bạn
+        method: "POST",
+        data: {
+            _token: '{{ csrf_token() }}',
+            product_id: $(this).data("id"),
+            quantity: 1
+        },
+        success: function(response) {
+            // Hiển thị hiệu ứng
+            showCartNotification();
+
+            // Có thể update số lượng giỏ hàng trên header nếu muốn
+            $("#cart-count").text(response.totalItems);
+        }
+    });
+});
+//danhgia 
+const stars = document.querySelectorAll('.item-rating');
+const ratingInput = document.querySelector('input[name="rating"]');
+
+stars.forEach(star => {
+    star.addEventListener('click', () => {
+        const value = star.getAttribute('data-value');
+        ratingInput.value = value;
+
+        stars.forEach(s => {
+            s.classList.remove('zmdi-star');
+            s.classList.add('zmdi-star-outline');
+        });
+
+        for (let i = 0; i < value; i++) {
+            stars[i].classList.remove('zmdi-star-outline');
+            stars[i].classList.add('zmdi-star');
+        }
+    });
+});
+
+</script>
 
 </body>
+<style>
+	.cart-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50; /* màu xanh thành công */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(-20px);
+    z-index: 9999;
+}
 
+.cart-notification.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+</style>
 </html>

@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\ProductReview;
+use App\Models\Review;
 class san_phamcontroller extends Controller
 {
     // --------------------------
@@ -40,6 +41,34 @@ class san_phamcontroller extends Controller
 
         return redirect()->route('san_pham')->with('success', 'Thêm sản phẩm thành công!');
     }
+    public function showProductDetailWithReviews($ma_san_pham)
+    {
+        $sanpham = san_pham::findOrFail($ma_san_pham);
+    
+        $reviews = Review::where('product_id', $ma_san_pham)
+                         ->with('user')
+                         ->orderBy('created_at', 'desc')
+                         ->get();
+    
+        return view('client.chitietsanpham', compact('sanpham', 'reviews'));
+    }
+public function storeReview(Request $request, $ma_san_pham)
+{
+    $request->validate([
+        'rating' => 'required|integer|min:1|max:5',
+        'comment' => 'required|string',
+    ]);
+
+    Review::create([
+        'product_id' => $ma_san_pham, 
+        'user_id' => auth()->id(),
+        'rating' => $request->rating,
+        'comment' => $request->comment,
+    ]);
+
+    return redirect()->back()->with('success', 'Đánh giá đã được gửi!');
+}
+
 
     public function show(string $ma_san_pham)
     {
